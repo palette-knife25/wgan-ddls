@@ -27,25 +27,6 @@ def prepare_25gaussian_data(BATCH_SIZE=1000):
     dataset /= 2.828 # stdev
     return dataset 
 
-def prepare_gaussians(num_samples_in_cluster, dim, 
-                      num_gaussian_per_dim, coord_limits, 
-                      std = 0.1, random_state = 42,
-                      scale = 2.828):
-    num_clusters = num_gaussian_per_dim ** dim
-    num_samples = num_samples_in_cluster * num_clusters
-    coords_per_dim = np.linspace(-coord_limits, 
-                                 coord_limits, 
-                                 num = num_gaussian_per_dim)
-    copy_coords = list(np.tile(coords_per_dim, (dim, 1)))
-    centers = np.array(np.meshgrid(*copy_coords)).T.reshape(-1, dim)
-    dataset = sklearn.datasets.make_blobs(n_samples = num_samples, 
-                                          n_features = dim, 
-                                          centers = centers, 
-                                          cluster_std = std,
-                                          random_state = random_state)[0]
-    dataset /= scale
-    return dataset
-
 def prepare_train_batches(dataset, BATCH_SIZE):
     while True:
         for i in range(len(dataset) // BATCH_SIZE):
@@ -69,36 +50,6 @@ def sample_fake_data(generator, X_train, epoch, path_to_save, batch_size_sample 
         path_to_plot = os.path.join(path_to_save, plot_name)
         plt.savefig(path_to_plot)
         plt.clf()
-    else:
-        plt.show()
-
-def visualize_fake_data_projection(fake_data, X_train, path_to_save, proj_1, proj_2, 
-                                   title,
-                                   mode):
-    fake_data_proj = fake_data[:, [proj_1, proj_2]]
-    X_train_proj = X_train[:, [proj_1, proj_2]]
-
-    plt.figure(figsize=(8, 8))
-    plt.xlim(-2., 2.)
-    plt.ylim(-2., 2.)
-    plt.title(title, fontsize=20)
-    X_train_proj = X_train[:, [proj_1, proj_2]]
-
-
-    plt.scatter(X_train_proj[:, 0], X_train_proj[:, 1], alpha=0.5, color='gray',
-                marker='o', label = 'training samples')
-    plt.scatter(fake_data_proj[:, 0], fake_data_proj[:, 1], alpha=0.5, color='blue',
-                marker='o', label = 'samples by G')
-    plt.xlabel(f"proj ind = {proj_1 + 1}")
-    plt.ylabel(f"proj ind = {proj_2 + 1}")
-    plt.legend()
-    plt.grid(True)
-    if path_to_save is not None:
-        cur_time = datetime.datetime.now().strftime('%Y_%m_%d-%H_%M_%S')
-        plot_name = cur_time + f"_wgan_sampling_" + mode + f"_proj1_{proj_1}_proj2_{proj_2}.pdf"
-        path_to_plot = os.path.join(path_to_save, plot_name)
-        plt.savefig(path_to_plot)
-        plt.close()
     else:
         plt.show()
 
